@@ -1,0 +1,151 @@
+int qtdBits [20] = {-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1};
+int contadorBits;
+int qtdBisDecimal;
+int ValorFinal;
+int start = 0;
+
+int Msg = 0;
+
+
+int contador1 = 0;
+int contador2 = 0;
+int contadorTempoBit = 0;
+int contadorTempoFim = 0;
+
+
+void setup() {
+  Serial.begin(9600);
+  delay(1000);
+}
+
+
+void loop() {
+
+        if (start = 0){
+          Serial.println("Receptor Ligado!");
+          Serial.println("Aguardando Luz!");
+          delay(1000);
+          start = 1;
+        }
+
+        Serial.print("Luminosidade: ");
+        int value = analogRead(A1);
+        Serial.println(value);
+
+        if (value > 100 && value < 150){
+          contador1 = 1;
+          delay(3000);
+        }
+      
+        if (contador1 == 1){ //Recebeu luz por 10 seg
+          
+            if (Msg == 0){
+              Serial.println("Recebeu luz intesidade 25, iniciando transmissao da qtd de bits");
+              Msg = 1;
+            }
+
+            Serial.println("Inicio da transmissao da qtd de bits ======================================================");
+            
+
+            //delay(500);
+
+            for (int i = 0; i < 20; i++){
+                    value = analogRead(A1);
+              
+                    if (value > 200){
+                      
+                      qtdBits[i] = 1;
+                      Serial.print(qtdBits[i]);
+                      delay(2000);
+          
+                    }else if(value < 80){
+
+                      
+                      qtdBits[i] = 0;
+                      Serial.print(qtdBits[i]);
+                      delay(2000);
+                    }
+
+                    if (value > 80 && value < 150){
+                      break;
+                    }
+
+                    
+
+            }
+        
+            
+
+
+            
+
+                Serial.println(" ");
+              
+                for (int i = 0; i < 20; i++){
+                    Serial.print(qtdBits[i]);
+                    Serial.print(" ");
+                }
+
+
+              
+                Serial.println("Fim da mensagem de bits");
+
+                for (int i = 0; i < 20; i++){
+                    if (qtdBits[i] == -1){
+                        contadorBits = i;
+                        break;
+                    }
+                }
+
+                for(int i=0; i < contadorBits; i++ ){ //Converte o array de volta para decimal;
+                    qtdBisDecimal<<=1; 
+                    qtdBisDecimal|=qtdBits[i];
+                } 
+
+                int valor[qtdBisDecimal];
+
+                Serial.print("Total de bits que serao recebidos sao ");
+                Serial.println(qtdBisDecimal);
+
+                delay(5000);
+
+                Serial.println("Inicio da transmissao do numero ======================================================");
+                
+                for (int i = 0; i < qtdBisDecimal; i++)
+                {
+                    value = analogRead(A1);
+                    if (value > 200){
+                        valor[i] = 1;
+                        Serial.print(valor[i]);
+                        
+                    }else if (value < 80){
+                        valor[i] = 0;
+                        Serial.print(valor[i]);    
+                                    
+                    
+                    }
+                        
+                    
+                    delay(1000);
+
+                   value = analogRead(A1);
+                   if (value > 80 && value < 150){
+                        Serial.println("Recebeu luz fraca, fim da mensagem!");
+                        for(int i=0; i < qtdBisDecimal; i++ ){ //Converte o array de volta para decimal;
+                            ValorFinal<<=1; 
+                            ValorFinal|=valor[i];
+                        } 
+
+                        Serial.println("Mensagem Recebida: ");
+                        Serial.print(ValorFinal);
+                        delay(3000);
+                        exit(1);
+                    }
+                    
+                    
+                    
+                }
+            
+
+        }
+}
